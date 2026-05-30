@@ -1,12 +1,15 @@
 package com.edunova.enrollmentservice.service;
 
+import com.edunova.enrollmentservice.dto.EnrollmentNotificationRequest;
 import com.edunova.enrollmentservice.dto.EnrollmentRequest;
 import com.edunova.enrollmentservice.dto.EnrollmentResponse;
 import com.edunova.enrollmentservice.entity.Enrollment;
 import com.edunova.enrollmentservice.repository.EnrollmentRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
@@ -17,6 +20,10 @@ import java.util.List;
 public class EnrollmentService {
 
     private final EnrollmentRepository enrollmentRepository;
+    private final RestTemplate restTemplate;
+
+    @Value("${notification.service.url}")
+    private String notificationServiceUrl;
 
     public EnrollmentResponse enroll(Long studentId, EnrollmentRequest request) {
 
@@ -39,6 +46,8 @@ public class EnrollmentService {
                 .build();
 
         Enrollment savedEnrollment = enrollmentRepository.save(enrollment);
+
+        sendEnrollmentNotification(savedEnrollment);
 
         return mapToResponse(savedEnrollment);
     }
@@ -65,6 +74,25 @@ public class EnrollmentService {
         }
 
         enrollmentRepository.delete(enrollment);
+    }
+
+    private void sendEnrollmentNotification(Enrollment enrollment) {
+        try {
+            EnrollmentNotificationRequest notificationRequest =
+                    new EnrollmentNotificationRequest(
+                            enrollment.getStudentId(),
+                            enrollment.getCourseId()
+                    );
+
+            restTemplate.postForObject(
+                    notificationServiceUrl,
+                    notificationRequest,
+                    String.class
+            );
+
+        } catch (Exception e) {
+            System.out.println("Notification Service unavailable: " + e.getMessage());
+        }
     }
 
     private EnrollmentResponse mapToResponse(Enrollment enrollment) {
