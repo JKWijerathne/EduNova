@@ -6,23 +6,25 @@ spring:
     name: api-gateway
   cloud:
     gateway:
-      routes:
-        - id: auth-service
-          uri: lb://auth-service
-          predicates:
-            - Path=/api/auth/**
-        - id: course-service
-          uri: lb://course-service
-          predicates:
-            - Path=/api/courses/**
-        - id: enrollment-service
-          uri: lb://enrollment-service
-          predicates:
-            - Path=/api/enrollments/**
-        - id: notification-service
-          uri: lb://notification-service
-          predicates:
-            - Path=/api/notifications/**
+      server:
+        webflux:
+          routes:
+            - id: auth-service
+              uri: lb://auth-service
+              predicates:
+                - Path=/api/auth/**
+            - id: course-service
+              uri: lb://course-service
+              predicates:
+                - Path=/api/courses/**
+            - id: enrollment-service
+              uri: lb://enrollment-service
+              predicates:
+                - Path=/api/enrollments/**
+            - id: notification-service
+              uri: lb://notification-service
+              predicates:
+                - Path=/api/notifications/**
 
 eureka:
   client:
