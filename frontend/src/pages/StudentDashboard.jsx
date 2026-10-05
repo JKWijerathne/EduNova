@@ -15,7 +15,7 @@ export default function StudentDashboard() {
         <h1 className="mt-3 font-serif text-4xl">Welcome, {user.name || 'Learner'}.</h1>
         <p className="mt-3 text-[#657570]">Your learning dashboard is ready.</p>
         <div className="mt-10 border-t border-[#cbd3ca] py-6">
-          <p className="text-sm font-semibold">Courses and progress will appear here.</p>
+          <Link to="/courses" className="inline-flex bg-[#254d40] px-5 py-3 text-sm font-semibold text-white hover:bg-[#18392f]">Explore courses</Link>
         </div>
       </section>
     </main>

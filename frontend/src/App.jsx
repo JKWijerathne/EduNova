@@ -3,6 +3,9 @@ import { AuthProvider } from './context/AuthContext.jsx'
 import { useAuth } from './context/useAuth.js'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import AdminDashboard from './pages/AdminDashboard.jsx'
+import AdminCourses from './pages/AdminCourses.jsx'
+import CourseCatalog from './pages/CourseCatalog.jsx'
+import CourseDetails from './pages/CourseDetails.jsx'
 import Login from './pages/Login.jsx'
 import Register from './pages/Register.jsx'
 import StudentDashboard from './pages/StudentDashboard.jsx'
@@ -23,11 +26,16 @@ function AppRoutes() {
       <Route path="/" element={<HomeRedirect />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route element={<ProtectedRoute />}>
+        <Route path="/courses" element={<CourseCatalog />} />
+        <Route path="/courses/:courseId" element={<CourseDetails />} />
+      </Route>
       <Route element={<ProtectedRoute allowedRole="STUDENT" />}>
         <Route path="/student-dashboard" element={<StudentDashboard />} />
       </Route>
       <Route element={<ProtectedRoute allowedRole="ADMIN" />}>
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/courses" element={<AdminCourses />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

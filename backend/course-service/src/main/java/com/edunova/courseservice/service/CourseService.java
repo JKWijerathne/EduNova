@@ -25,6 +25,8 @@ public class CourseService {
                 .description(request.getDescription())
                 .instructorName(request.getInstructorName())
                 .duration(request.getDuration())
+                .category(request.getCategory())
+                .price(request.getPrice())
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
@@ -62,6 +64,8 @@ public class CourseService {
         course.setDescription(request.getDescription());
         course.setInstructorName(request.getInstructorName());
         course.setDuration(request.getDuration());
+        course.setCategory(request.getCategory());
+        course.setPrice(request.getPrice());
         course.setUpdatedAt(LocalDateTime.now());
 
         Course updatedCourse = courseRepository.save(course);
@@ -86,6 +90,8 @@ public class CourseService {
                 .description(course.getDescription())
                 .instructorName(course.getInstructorName())
                 .duration(course.getDuration())
+                .category(course.getCategory())
+                .price(course.getPrice())
                 .createdAt(course.getCreatedAt())
                 .updatedAt(course.getUpdatedAt())
                 .build();

@@ -1,7 +1,10 @@
 package com.edunova.courseservice.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.DecimalMin;
 import lombok.Data;
+
+import java.math.BigDecimal;
 
 @Data
 public class CourseRequest {
@@ -14,4 +17,9 @@ public class CourseRequest {
     private String instructorName;
 
     private String duration;
+
+    private String category;
+
+    @DecimalMin(value = "0.0", message = "Course price cannot be negative")
+    private BigDecimal price;
 }
