@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import CourseForm from '../components/CourseForm.jsx'
-import { useAuth } from '../context/useAuth.js'
 import { createCourse, deleteCourse, getCourses, updateCourse } from '../services/courseService.js'
 
 function formatPrice(price) {
@@ -10,7 +9,6 @@ function formatPrice(price) {
 }
 
 export default function AdminCourses() {
-  const { logout } = useAuth()
   const [courses, setCourses] = useState([])
   const [selectedCourse, setSelectedCourse] = useState(null)
   const [courseToDelete, setCourseToDelete] = useState(null)
@@ -79,13 +77,6 @@ export default function AdminCourses() {
 
   return (
     <main className="min-h-screen bg-[#f3f4ed] text-[#172d2a]">
-      <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#d9ded5] bg-white px-6 py-5 sm:px-10">
-        <Link to="/admin-dashboard" className="text-xl font-bold tracking-tight">EduNova<span className="text-[#bd4c37]">.</span></Link>
-        <nav className="flex items-center gap-4 text-sm font-semibold">
-          <Link to="/courses" className="hover:text-[#bd4c37]">Catalog</Link>
-          <button onClick={logout} className="border border-[#bdc9bf] px-4 py-2 hover:bg-[#edf4ef]">Sign out</button>
-        </nav>
-      </header>
       <section className="mx-auto max-w-6xl px-6 py-12 sm:px-10">
         <div className="flex flex-wrap items-end justify-between gap-5">
           <div>

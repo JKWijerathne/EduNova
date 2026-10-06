@@ -2,6 +2,7 @@ package com.edunova.enrollmentservice.config;
 
 import com.edunova.enrollmentservice.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpMethod;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -20,7 +21,10 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/enrollments/**").hasRole("STUDENT")
+                    .requestMatchers(HttpMethod.GET, "/api/enrollments/my-courses").hasRole("STUDENT")
+                    .requestMatchers(HttpMethod.GET, "/api/enrollments").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/api/enrollments").hasRole("STUDENT")
+                    .requestMatchers(HttpMethod.DELETE, "/api/enrollments/**").hasRole("STUDENT")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form.disable())

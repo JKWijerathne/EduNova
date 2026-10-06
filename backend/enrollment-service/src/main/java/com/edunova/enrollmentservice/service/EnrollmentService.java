@@ -5,6 +5,7 @@ import com.edunova.enrollmentservice.dto.EnrollmentRequest;
 import com.edunova.enrollmentservice.dto.EnrollmentResponse;
 import com.edunova.enrollmentservice.entity.Enrollment;
 import com.edunova.enrollmentservice.repository.EnrollmentRepository;
+import com.edunova.enrollmentservice.security.EnrollmentPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -25,10 +26,10 @@ public class EnrollmentService {
     @Value("${notification.service.url}")
     private String notificationServiceUrl;
 
-    public EnrollmentResponse enroll(Long studentId, EnrollmentRequest request) {
+        public EnrollmentResponse enroll(EnrollmentPrincipal student, EnrollmentRequest request) {
 
         boolean alreadyEnrolled = enrollmentRepository.existsByStudentIdAndCourseId(
-                studentId,
+                student.userId(),
                 request.getCourseId()
         );
 
@@ -40,7 +41,9 @@ public class EnrollmentService {
         }
 
         Enrollment enrollment = Enrollment.builder()
-                .studentId(studentId)
+                .studentId(student.userId())
+                .studentName(student.name())
+                .studentEmail(student.email())
                 .courseId(request.getCourseId())
                 .enrolledAt(LocalDateTime.now())
                 .build();
@@ -58,6 +61,13 @@ public class EnrollmentService {
                 .map(this::mapToResponse)
                 .toList();
     }
+
+        public List<EnrollmentResponse> getAllEnrollments() {
+                return enrollmentRepository.findAll()
+                                .stream()
+                                .map(this::mapToResponse)
+                                .toList();
+        }
 
     public void unenroll(Long enrollmentId, Long studentId) {
         Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
@@ -99,6 +109,8 @@ public class EnrollmentService {
         return EnrollmentResponse.builder()
                 .id(enrollment.getId())
                 .studentId(enrollment.getStudentId())
+                .studentName(enrollment.getStudentName())
+                .studentEmail(enrollment.getStudentEmail())
                 .courseId(enrollment.getCourseId())
                 .enrolledAt(enrollment.getEnrolledAt())
                 .build();

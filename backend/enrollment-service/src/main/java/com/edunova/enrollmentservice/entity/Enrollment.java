@@ -24,6 +24,10 @@ public class Enrollment {
 
     private Long studentId;
 
+        private String studentName;
+
+        private String studentEmail;
+
     private Long courseId;
 
     private LocalDateTime enrolledAt;

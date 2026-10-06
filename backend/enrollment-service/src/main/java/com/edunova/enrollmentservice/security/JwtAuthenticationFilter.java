@@ -15,6 +15,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
 @Component
 @RequiredArgsConstructor
@@ -47,12 +48,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         Long userId = Long.valueOf(claims.get("userId").toString());
         String role = claims.get("role", String.class);
+        if (role == null || role.isBlank()) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        String authority = role.trim().toUpperCase(Locale.ROOT);
+        if (!authority.startsWith("ROLE_")) {
+            authority = "ROLE_" + authority;
+        }
 
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(
-                        userId,
+                        new EnrollmentPrincipal(userId, claims.get("name", String.class), claims.getSubject()),
                         null,
-                        List.of(new SimpleGrantedAuthority("ROLE_" + role))
+                        List.of(new SimpleGrantedAuthority(authority))
                 );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);

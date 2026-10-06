@@ -3,6 +3,7 @@ package com.edunova.enrollmentservice.controller;
 import com.edunova.enrollmentservice.dto.EnrollmentRequest;
 import com.edunova.enrollmentservice.dto.EnrollmentResponse;
 import com.edunova.enrollmentservice.service.EnrollmentService;
+import com.edunova.enrollmentservice.security.EnrollmentPrincipal;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,8 +25,8 @@ public class EnrollmentController {
             @Valid @RequestBody EnrollmentRequest request,
             Authentication authentication
     ) {
-        Long studentId = (Long) authentication.getPrincipal();
-        EnrollmentResponse response = enrollmentService.enroll(studentId, request);
+        EnrollmentPrincipal student = (EnrollmentPrincipal) authentication.getPrincipal();
+        EnrollmentResponse response = enrollmentService.enroll(student, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -33,8 +34,13 @@ public class EnrollmentController {
     public ResponseEntity<List<EnrollmentResponse>> getMyCourses(
             Authentication authentication
     ) {
-        Long studentId = (Long) authentication.getPrincipal();
-        return ResponseEntity.ok(enrollmentService.getMyEnrollments(studentId));
+        EnrollmentPrincipal student = (EnrollmentPrincipal) authentication.getPrincipal();
+        return ResponseEntity.ok(enrollmentService.getMyEnrollments(student.userId()));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<EnrollmentResponse>> getAllEnrollments() {
+        return ResponseEntity.ok(enrollmentService.getAllEnrollments());
     }
 
     @DeleteMapping("/{id}")
@@ -42,8 +48,8 @@ public class EnrollmentController {
             @PathVariable Long id,
             Authentication authentication
     ) {
-        Long studentId = (Long) authentication.getPrincipal();
-        enrollmentService.unenroll(id, studentId);
+        EnrollmentPrincipal student = (EnrollmentPrincipal) authentication.getPrincipal();
+        enrollmentService.unenroll(id, student.userId());
         return ResponseEntity.noContent().build();
     }
 }

@@ -12,6 +12,8 @@ public class EnrollmentResponse {
 
     private Long id;
     private Long studentId;
+    private String studentName;
+    private String studentEmail;
     private Long courseId;
     private LocalDateTime enrolledAt;
 }

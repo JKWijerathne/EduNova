@@ -4,9 +4,11 @@ import { useAuth } from './context/useAuth.js'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import AdminDashboard from './pages/AdminDashboard.jsx'
 import AdminCourses from './pages/AdminCourses.jsx'
+import AdminEnrollments from './pages/AdminEnrollments.jsx'
 import CourseCatalog from './pages/CourseCatalog.jsx'
 import CourseDetails from './pages/CourseDetails.jsx'
 import Login from './pages/Login.jsx'
+import MyEnrollments from './pages/MyEnrollments.jsx'
 import Register from './pages/Register.jsx'
 import StudentDashboard from './pages/StudentDashboard.jsx'
 
@@ -32,10 +34,12 @@ function AppRoutes() {
       </Route>
       <Route element={<ProtectedRoute allowedRole="STUDENT" />}>
         <Route path="/student-dashboard" element={<StudentDashboard />} />
+        <Route path="/my-enrollments" element={<MyEnrollments />} />
       </Route>
       <Route element={<ProtectedRoute allowedRole="ADMIN" />}>
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/admin/courses" element={<AdminCourses />} />
+        <Route path="/admin/enrollments" element={<AdminEnrollments />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
