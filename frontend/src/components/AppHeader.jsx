@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/useAuth.js'
+import NotificationBell from './NotificationBell.jsx'
 
 export default function AppHeader() {
   const { user, logout } = useAuth()
@@ -22,6 +23,7 @@ export default function AppHeader() {
             <Link to="/my-enrollments" className="hover:text-[#bd4c37]">My enrollments</Link>
           </>
         )}
+        <NotificationBell />
         <span className="hidden text-[#657570] sm:inline">{user.name || (isAdmin ? 'Admin' : 'Learner')}</span>
         <button onClick={logout} className="border border-[#bdc9bf] px-4 py-2 hover:bg-[#edf4ef]">Sign out</button>
       </nav>

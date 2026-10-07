@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext.jsx'
 import { useAuth } from './context/useAuth.js'
+import { NotificationProvider } from './context/NotificationContext.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import AdminDashboard from './pages/AdminDashboard.jsx'
 import AdminCourses from './pages/AdminCourses.jsx'
@@ -9,6 +10,7 @@ import CourseCatalog from './pages/CourseCatalog.jsx'
 import CourseDetails from './pages/CourseDetails.jsx'
 import Login from './pages/Login.jsx'
 import MyEnrollments from './pages/MyEnrollments.jsx'
+import Notifications from './pages/Notifications.jsx'
 import Register from './pages/Register.jsx'
 import StudentDashboard from './pages/StudentDashboard.jsx'
 
@@ -31,6 +33,7 @@ function AppRoutes() {
       <Route element={<ProtectedRoute />}>
         <Route path="/courses" element={<CourseCatalog />} />
         <Route path="/courses/:courseId" element={<CourseDetails />} />
+        <Route path="/notifications" element={<Notifications />} />
       </Route>
       <Route element={<ProtectedRoute allowedRole="STUDENT" />}>
         <Route path="/student-dashboard" element={<StudentDashboard />} />
@@ -49,7 +52,9 @@ function AppRoutes() {
 export default function App() {
   return (
     <AuthProvider>
-      <AppRoutes />
+      <NotificationProvider>
+        <AppRoutes />
+      </NotificationProvider>
     </AuthProvider>
   )
 }

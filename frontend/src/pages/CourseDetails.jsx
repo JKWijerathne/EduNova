@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { useAuth } from '../context/useAuth.js'
 import { getCourse } from '../services/courseService.js'
 import { enrollInCourse, getMyEnrollments } from '../services/enrollmentService.js'
+import { useNotifications } from '../context/useNotifications.js'
 
 function formatPrice(price) {
   if (price === null || price === undefined || price === '') return 'Price not set'
@@ -12,6 +13,7 @@ function formatPrice(price) {
 export default function CourseDetails() {
   const { courseId } = useParams()
   const { user } = useAuth()
+  const { refreshNotifications } = useNotifications()
   const [course, setCourse] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -52,6 +54,7 @@ export default function CourseDetails() {
       await enrollInCourse(courseId)
       setIsEnrolled(true)
       setEnrollmentFeedback('You are enrolled in this course.')
+      await refreshNotifications()
     } catch (enrollmentError) {
       if (enrollmentError.response?.status === 409) {
         setIsEnrolled(true)

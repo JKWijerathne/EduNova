@@ -7,9 +7,15 @@ import com.edunova.enrollmentservice.entity.Enrollment;
 import com.edunova.enrollmentservice.repository.EnrollmentRepository;
 import com.edunova.enrollmentservice.security.EnrollmentPrincipal;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -20,13 +26,15 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EnrollmentService {
 
+    private static final Logger logger = LoggerFactory.getLogger(EnrollmentService.class);
+
     private final EnrollmentRepository enrollmentRepository;
     private final RestTemplate restTemplate;
 
     @Value("${notification.service.url}")
     private String notificationServiceUrl;
 
-        public EnrollmentResponse enroll(EnrollmentPrincipal student, EnrollmentRequest request) {
+    public EnrollmentResponse enroll(EnrollmentPrincipal student, EnrollmentRequest request, String authorization) {
 
         boolean alreadyEnrolled = enrollmentRepository.existsByStudentIdAndCourseId(
                 student.userId(),
@@ -50,7 +58,7 @@ public class EnrollmentService {
 
         Enrollment savedEnrollment = enrollmentRepository.save(enrollment);
 
-        sendEnrollmentNotification(savedEnrollment);
+        sendEnrollmentNotification(savedEnrollment, authorization);
 
         return mapToResponse(savedEnrollment);
     }
@@ -86,7 +94,7 @@ public class EnrollmentService {
         enrollmentRepository.delete(enrollment);
     }
 
-    private void sendEnrollmentNotification(Enrollment enrollment) {
+    private void sendEnrollmentNotification(Enrollment enrollment, String authorization) {
         try {
             EnrollmentNotificationRequest notificationRequest =
                     new EnrollmentNotificationRequest(
@@ -94,14 +102,17 @@ public class EnrollmentService {
                             enrollment.getCourseId()
                     );
 
-            restTemplate.postForObject(
+            HttpHeaders headers = new HttpHeaders();
+            headers.set(HttpHeaders.AUTHORIZATION, authorization);
+            restTemplate.exchange(
                     notificationServiceUrl,
-                    notificationRequest,
-                    String.class
+                    HttpMethod.POST,
+                    new HttpEntity<>(notificationRequest, headers),
+                    Void.class
             );
 
-        } catch (Exception e) {
-            System.out.println("Notification Service unavailable: " + e.getMessage());
+        } catch (RestClientException e) {
+            logger.warn("Notification service could not record enrollment {}: {}", enrollment.getId(), e.getMessage());
         }
     }
 
