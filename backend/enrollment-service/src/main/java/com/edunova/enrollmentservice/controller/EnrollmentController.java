@@ -23,11 +23,10 @@ public class EnrollmentController {
     @PostMapping
     public ResponseEntity<EnrollmentResponse> enroll(
             @Valid @RequestBody EnrollmentRequest request,
-            @RequestHeader("Authorization") String authorization,
             Authentication authentication
     ) {
         EnrollmentPrincipal student = (EnrollmentPrincipal) authentication.getPrincipal();
-        EnrollmentResponse response = enrollmentService.enroll(student, request, authorization);
+        EnrollmentResponse response = enrollmentService.enroll(student, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

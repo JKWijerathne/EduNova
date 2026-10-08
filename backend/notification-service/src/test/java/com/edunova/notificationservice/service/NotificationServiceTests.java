@@ -56,6 +56,21 @@ class NotificationServiceTests {
     }
 
     @Test
+    void courseDropNotificationIsStoredAsUnreadForTheStudent() {
+        EnrollmentNotificationRequest request = new EnrollmentNotificationRequest();
+        request.setStudentId(17L);
+        request.setCourseId(42L);
+
+        Notification notification = notificationService.createCourseDropNotification(request);
+
+        assertThat(notification.getStudentId()).isEqualTo(17L);
+        assertThat(notification.getTitle()).isEqualTo("Course enrollment cancelled");
+        assertThat(notification.getMessage()).contains("42");
+        assertThat(notification.getType()).isEqualTo("COURSE_DROP");
+        assertThat(notification.isRead()).isFalse();
+    }
+
+    @Test
     void notificationCanBeMarkedReadAndDismissedByItsOwner() {
         CreateNotificationRequest request = new CreateNotificationRequest();
         request.setStudentId(17L);

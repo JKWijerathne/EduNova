@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { useAuth } from '../context/useAuth.js'
 import { getCourse } from '../services/courseService.js'
 import { enrollInCourse, getMyEnrollments } from '../services/enrollmentService.js'
+import { recordEnrollmentNotification } from '../services/notificationService.js'
 import { useNotifications } from '../context/useNotifications.js'
 
 function formatPrice(price) {
@@ -53,8 +54,17 @@ export default function CourseDetails() {
     try {
       await enrollInCourse(courseId)
       setIsEnrolled(true)
-      setEnrollmentFeedback('You are enrolled in this course.')
-      await refreshNotifications()
+      try {
+        await recordEnrollmentNotification(user.id, courseId)
+        setEnrollmentFeedback('You are enrolled in this course.')
+        await refreshNotifications()
+      } catch (notificationError) {
+        const reason = notificationError.response?.data?.message
+          || (notificationError.response?.status
+            ? `Notification request failed (${notificationError.response.status}).`
+            : 'The notification service could not be reached.')
+        setEnrollmentFeedback(`You are enrolled, but the confirmation notification could not be saved. ${reason}`)
+      }
     } catch (enrollmentError) {
       if (enrollmentError.response?.status === 409) {
         setIsEnrolled(true)

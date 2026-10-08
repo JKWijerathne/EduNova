@@ -22,7 +22,7 @@ export function NotificationProvider({ children }) {
     setLoading(true)
     setError('')
     try {
-      const result = await getMyNotifications(user.id)
+      const result = await getMyNotifications()
       if (!Array.isArray(result)) {
         throw new Error('The notification service returned an invalid response.')
       }

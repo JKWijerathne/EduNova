@@ -42,6 +42,15 @@ public class NotificationService {
                 .build());
     }
 
+    public Notification createCourseDropNotification(EnrollmentNotificationRequest request) {
+        return notificationRepository.save(Notification.builder()
+                .studentId(request.getStudentId())
+                .title("Course enrollment cancelled")
+                .message("You have dropped course #" + request.getCourseId() + ".")
+                .type("COURSE_DROP")
+                .build());
+    }
+
     public Notification markAsRead(Long notificationId, Long studentId) {
         Notification notification = getOwnedNotification(notificationId, studentId);
         notification.setRead(true);

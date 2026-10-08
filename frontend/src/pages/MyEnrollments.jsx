@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { getCourses } from '../services/courseService.js'
 import { dropEnrollment, getMyEnrollments } from '../services/enrollmentService.js'
+import { recordCourseDropNotification } from '../services/notificationService.js'
+import { useNotifications } from '../context/useNotifications.js'
+import { useAuth } from '../context/useAuth.js'
 
 function formatDate(value) {
   if (!value) return 'Date unavailable'
@@ -9,6 +12,8 @@ function formatDate(value) {
 }
 
 export default function MyEnrollments() {
+  const { user } = useAuth()
+  const { refreshNotifications } = useNotifications()
   const [enrollments, setEnrollments] = useState([])
   const [coursesById, setCoursesById] = useState({})
   const [enrollmentToDrop, setEnrollmentToDrop] = useState(null)
@@ -37,6 +42,17 @@ export default function MyEnrollments() {
     try {
       await dropEnrollment(enrollment.id)
       setEnrollments((current) => current.filter((item) => item.id !== enrollment.id))
+      setEnrollmentToDrop(null)
+      try {
+        await recordCourseDropNotification(user.id, enrollment.courseId)
+        await refreshNotifications()
+      } catch (notificationError) {
+        const reason = notificationError.response?.data?.message
+          || (notificationError.response?.status
+            ? `Notification request failed (${notificationError.response.status}).`
+            : 'The notification service could not be reached.')
+        setError(`The course was dropped, but its notification could not be saved. ${reason}`)
+      }
     } catch {
       setError('This enrollment could not be cancelled. Please try again.')
     } finally {

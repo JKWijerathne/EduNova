@@ -21,6 +21,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/notifications/enrollment").hasRole("STUDENT")
+                        .requestMatchers(HttpMethod.POST, "/api/notifications/course-drop").hasRole("STUDENT")
+                        .requestMatchers(HttpMethod.GET, "/api/notifications").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/notifications/student/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/notifications").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/notifications/*/read").hasAnyRole("STUDENT", "ADMIN")

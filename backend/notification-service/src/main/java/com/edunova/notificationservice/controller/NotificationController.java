@@ -22,6 +22,13 @@ public class NotificationController {
 
     private final NotificationService notificationService;
 
+    @GetMapping
+    public ResponseEntity<List<Notification>> getMyNotifications(
+            @AuthenticationPrincipal NotificationPrincipal principal
+    ) {
+        return ResponseEntity.ok(notificationService.getNotifications(principal.userId()));
+    }
+
     @GetMapping("/student/{studentId}")
     public ResponseEntity<List<Notification>> getNotifications(
             @PathVariable Long studentId,
@@ -45,6 +52,16 @@ public class NotificationController {
     ) {
         requireOwner(request.getStudentId(), principal);
         notificationService.createEnrollmentNotification(request);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/course-drop")
+    public ResponseEntity<Void> sendCourseDropNotification(
+            @Valid @RequestBody EnrollmentNotificationRequest request,
+            @AuthenticationPrincipal NotificationPrincipal principal
+    ) {
+        requireOwner(request.getStudentId(), principal);
+        notificationService.createCourseDropNotification(request);
         return ResponseEntity.noContent().build();
     }
 
