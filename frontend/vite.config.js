@@ -12,11 +12,19 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react(), tailwindcss()],
     server: {
+      headers: {
+        'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
+      },
       proxy: {
         '/api': {
           target: env.API_PROXY_TARGET || 'http://localhost:8080',
           changeOrigin: true,
         },
+      },
+    },
+    preview: {
+      headers: {
+        'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
       },
     },
   }

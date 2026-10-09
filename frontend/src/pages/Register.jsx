@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/useAuth.js'
+import GoogleSignInButton from '../components/GoogleSignInButton.jsx'
 
 function destinationFor(role) {
   return role === 'ADMIN' ? '/admin-dashboard' : '/student-dashboard'
 }
 
 export default function Register() {
-  const { isAuthenticated, register, user } = useAuth()
+  const { isAuthenticated, register, googleLogin, user } = useAuth()
   const navigate = useNavigate()
   const [form, setForm] = useState({ name: '', email: '', password: '', role: 'STUDENT' })
   const [error, setError] = useState('')
@@ -30,6 +31,11 @@ export default function Register() {
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  async function handleGoogleCredential(idToken) {
+    const authenticatedUser = await googleLogin(idToken)
+    navigate(destinationFor(authenticatedUser.role), { replace: true })
   }
 
   return (
@@ -82,6 +88,12 @@ export default function Register() {
               {isSubmitting ? 'Creating account…' : 'Create account'}
             </button>
           </form>
+          <div className="my-6 flex items-center gap-4 text-xs font-semibold uppercase tracking-wider text-[#82908a]">
+            <span className="h-px flex-1 bg-[#d9ded5]" />
+            <span>or</span>
+            <span className="h-px flex-1 bg-[#d9ded5]" />
+          </div>
+          <GoogleSignInButton onCredential={handleGoogleCredential} disabled={isSubmitting} />
           <p className="mt-5 text-center text-sm text-[#657570]">Already have an account? <Link to="/login" className="font-bold text-[#176457] underline underline-offset-4">Sign in</Link></p>
         </div>
       </section>

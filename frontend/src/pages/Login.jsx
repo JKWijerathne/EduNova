@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/useAuth.js'
+import GoogleSignInButton from '../components/GoogleSignInButton.jsx'
 
 function destinationFor(role) {
   return role === 'ADMIN' ? '/admin-dashboard' : '/student-dashboard'
 }
 
 export default function Login() {
-  const { isAuthenticated, login, user } = useAuth()
+  const { isAuthenticated, login, googleLogin, user } = useAuth()
   const navigate = useNavigate()
   const [form, setForm] = useState({ email: '', password: '' })
   const [error, setError] = useState('')
@@ -30,6 +31,11 @@ export default function Login() {
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  async function handleGoogleCredential(idToken) {
+    const authenticatedUser = await googleLogin(idToken)
+    navigate(destinationFor(authenticatedUser.role), { replace: true })
   }
 
   return (
@@ -70,6 +76,12 @@ export default function Login() {
               {isSubmitting ? 'Signing in…' : 'Sign in'}
             </button>
           </form>
+          <div className="my-6 flex items-center gap-4 text-xs font-semibold uppercase tracking-wider text-[#82908a]">
+            <span className="h-px flex-1 bg-[#d9ded5]" />
+            <span>or</span>
+            <span className="h-px flex-1 bg-[#d9ded5]" />
+          </div>
+          <GoogleSignInButton onCredential={handleGoogleCredential} disabled={isSubmitting} />
           <p className="mt-6 text-center text-sm text-[#657570]">New to EduNova? <Link to="/register" className="font-bold text-[#176457] underline decoration-[#a4b9a8] underline-offset-4 hover:text-[#0d4037]">Create an account</Link></p>
         </div>
       </section>

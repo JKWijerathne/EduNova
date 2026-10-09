@@ -1,6 +1,7 @@
 package com.edunova.authservice.controller;
 
 import com.edunova.authservice.dto.AuthResponse;
+import com.edunova.authservice.dto.GoogleAuthRequest;
 import com.edunova.authservice.dto.LoginRequest;
 import com.edunova.authservice.dto.RegisterRequest;
 import com.edunova.authservice.service.AuthService;
@@ -27,5 +28,10 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         AuthResponse response = authService.login(request);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/google")
+    public ResponseEntity<AuthResponse> googleLogin(@Valid @RequestBody GoogleAuthRequest request) {
+        return ResponseEntity.ok(authService.googleLogin(request.getIdToken()));
     }
 }

@@ -40,6 +40,11 @@ export function AuthProvider({ children }) {
     return saveSession(data)
   }
 
+  async function googleLogin(idToken) {
+    const { data } = await apiClient.post('/auth/google', { idToken })
+    return saveSession(data)
+  }
+
   async function register(userData) {
     const { data } = await apiClient.post('/auth/register', userData)
     return saveSession(data)
@@ -53,7 +58,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ token, user, isAuthenticated: Boolean(token && user), login, register, logout }}>
+    <AuthContext.Provider value={{ token, user, isAuthenticated: Boolean(token && user), login, googleLogin, register, logout }}>
       {children}
     </AuthContext.Provider>
   )
