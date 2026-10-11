@@ -5,9 +5,11 @@ import { NotificationProvider } from './context/NotificationContext.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import AdminDashboard from './pages/AdminDashboard.jsx'
 import AdminCourses from './pages/AdminCourses.jsx'
+import AdminCourseContent from './pages/AdminCourseContent.jsx'
 import AdminEnrollments from './pages/AdminEnrollments.jsx'
 import CourseCatalog from './pages/CourseCatalog.jsx'
 import CourseDetails from './pages/CourseDetails.jsx'
+import CoursePlayer from './pages/CoursePlayer.jsx'
 import Login from './pages/Login.jsx'
 import MyEnrollments from './pages/MyEnrollments.jsx'
 import Notifications from './pages/Notifications.jsx'
@@ -21,7 +23,7 @@ function HomeRedirect() {
     return <Navigate to="/login" replace />
   }
 
-  return <Navigate to={user.role === 'ADMIN' ? '/admin-dashboard' : '/student-dashboard'} replace />
+  return <Navigate to={user.role === 'ADMIN' ? '/admin-dashboard' : user.role === 'INSTRUCTOR' ? '/admin/courses' : '/student-dashboard'} replace />
 }
 
 function AppRoutes() {
@@ -38,10 +40,14 @@ function AppRoutes() {
       <Route element={<ProtectedRoute allowedRole="STUDENT" />}>
         <Route path="/student-dashboard" element={<StudentDashboard />} />
         <Route path="/my-enrollments" element={<MyEnrollments />} />
+        <Route path="/courses/:courseId/player" element={<CoursePlayer />} />
+      </Route>
+      <Route element={<ProtectedRoute allowedRole={['ADMIN', 'INSTRUCTOR']} />}>
+        <Route path="/admin/courses" element={<AdminCourses />} />
+        <Route path="/admin/courses/:courseId/content" element={<AdminCourseContent />} />
       </Route>
       <Route element={<ProtectedRoute allowedRole="ADMIN" />}>
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
-        <Route path="/admin/courses" element={<AdminCourses />} />
         <Route path="/admin/enrollments" element={<AdminEnrollments />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

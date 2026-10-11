@@ -83,13 +83,16 @@ export default function MyEnrollments() {
                 <article key={enrollment.id} className="flex flex-col gap-5 bg-white px-5 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-6">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-3">
-                      {course ? <Link to={`/courses/${course.id}`} className="font-serif text-2xl hover:text-[#426e5c]">{course.title}</Link> : <h2 className="font-serif text-2xl">Course #{enrollment.courseId}</h2>}
+                      {course ? <Link to={`/courses/${course.id}/player`} className="font-serif text-2xl hover:text-[#426e5c]">{course.title}</Link> : <h2 className="font-serif text-2xl">Course #{enrollment.courseId}</h2>}
                       <span className="border border-[#b8cdbf] bg-[#edf4ef] px-2 py-1 text-xs font-bold uppercase tracking-wide text-[#426e5c]">Active</span>
                     </div>
                     <p className="mt-2 text-sm text-[#657570]">{course?.instructorName || 'Instructor unavailable'}{course?.duration ? ` · ${course.duration}` : ''}</p>
                     <p className="mt-1 text-xs text-[#68817b]">Enrolled {formatDate(enrollment.enrolledAt)}</p>
                   </div>
-                  <button onClick={() => setEnrollmentToDrop(enrollment)} disabled={droppingId === enrollment.id} className="self-start border border-[#d7aaa0] px-4 py-2 text-sm font-semibold text-[#a14935] hover:bg-[#f8e9e4] disabled:cursor-wait disabled:opacity-60 sm:self-center">Drop course</button>
+                  <div className="flex items-center gap-3 self-start sm:self-center">
+                    <Link to={`/courses/${enrollment.courseId}/player`} className="bg-[#254d40] px-4 py-2 text-sm font-semibold text-white hover:bg-[#18392f]">Resume learning</Link>
+                    <button onClick={() => setEnrollmentToDrop(enrollment)} disabled={droppingId === enrollment.id} className="border border-[#d7aaa0] px-4 py-2 text-sm font-semibold text-[#a14935] hover:bg-[#f8e9e4] disabled:cursor-wait disabled:opacity-60">Drop course</button>
+                  </div>
                 </article>
               )
             })}

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import CourseForm from '../components/CourseForm.jsx'
+import { useAuth } from '../context/useAuth.js'
 import { createCourse, deleteCourse, getCourses, updateCourse } from '../services/courseService.js'
 
 function formatPrice(price) {
@@ -9,7 +10,10 @@ function formatPrice(price) {
 }
 
 export default function AdminCourses() {
+  const { user } = useAuth()
+  const isAdmin = user.role === 'ADMIN'
   const [courses, setCourses] = useState([])
+  const [contentCourseId, setContentCourseId] = useState('')
   const [selectedCourse, setSelectedCourse] = useState(null)
   const [courseToDelete, setCourseToDelete] = useState(null)
   const [deletingCourseId, setDeletingCourseId] = useState(null)
@@ -22,7 +26,11 @@ export default function AdminCourses() {
     setError('')
     try {
       const results = await getCourses()
-      setCourses(Array.isArray(results) ? results : [])
+      const loadedCourses = Array.isArray(results) ? results : []
+      setCourses(loadedCourses)
+      setContentCourseId((current) => loadedCourses.some((course) => String(course.id) === current)
+        ? current
+        : String(loadedCourses[0]?.id || ''))
     } catch {
       setError('Courses could not be loaded. Please try again.')
     } finally {
@@ -84,7 +92,18 @@ export default function AdminCourses() {
             <h1 className="mt-3 font-serif text-4xl">Course management</h1>
             <p className="mt-3 text-[#657570]">Create, update, and remove catalog courses.</p>
           </div>
-          <button onClick={openCreate} className="bg-[#254d40] px-5 py-3 text-sm font-semibold text-white hover:bg-[#18392f]">+ Add course</button>
+          <div className="flex flex-wrap items-center gap-3">
+            {courses.length > 0 && (
+              <div className="flex flex-wrap items-center gap-2 border border-[#bdc9bf] bg-white p-2">
+                <label htmlFor="content-course" className="pl-1 text-xs font-semibold text-[#52645f]">Course content</label>
+                <select id="content-course" value={contentCourseId} onChange={(event) => setContentCourseId(event.target.value)} className="max-w-56 border border-[#bdc9bf] px-3 py-2 text-sm">
+                  {courses.map((course) => <option key={course.id} value={String(course.id)}>{course.title}</option>)}
+                </select>
+                <Link to={`/admin/courses/${contentCourseId}/content`} className="bg-[#254d40] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#18392f]">Manage content</Link>
+              </div>
+            )}
+            {isAdmin && <button onClick={openCreate} className="bg-[#254d40] px-5 py-3 text-sm font-semibold text-white hover:bg-[#18392f]">+ Add course</button>}
+          </div>
         </div>
 
         {error && <p role="alert" className="mt-6 border-l-4 border-[#bd4c37] bg-white px-4 py-3 text-sm">{error}</p>}
@@ -103,7 +122,7 @@ export default function AdminCourses() {
                     <td className="px-4 py-4 text-[#52645f]">{course.instructorName || '—'}</td>
                     <td className="px-4 py-4 text-[#52645f]">{course.category || '—'}</td>
                     <td className="px-4 py-4 text-[#52645f]">{formatPrice(course.price)}</td>
-                    <td className="px-4 py-4"><div className="flex justify-end gap-2"><button onClick={() => openEdit(course)} className="border border-[#bdc9bf] px-3 py-2 text-xs font-semibold hover:bg-[#edf4ef]">Edit</button><button onClick={() => openDelete(course)} disabled={deletingCourseId === course.id} className="border border-[#d7aaa0] px-3 py-2 text-xs font-semibold text-[#a14935] hover:bg-[#f8e9e4] disabled:cursor-wait disabled:opacity-60">{deletingCourseId === course.id ? 'Deleting...' : 'Delete'}</button></div></td>
+                    <td className="px-4 py-4"><div className="flex justify-end gap-2">{isAdmin && <><button onClick={() => openEdit(course)} className="border border-[#bdc9bf] px-3 py-2 text-xs font-semibold hover:bg-[#edf4ef]">Edit</button><button onClick={() => openDelete(course)} disabled={deletingCourseId === course.id} className="border border-[#d7aaa0] px-3 py-2 text-xs font-semibold text-[#a14935] hover:bg-[#f8e9e4] disabled:cursor-wait disabled:opacity-60">{deletingCourseId === course.id ? 'Deleting...' : 'Delete'}</button></>}<Link to={`/admin/courses/${course.id}/content`} className="border border-[#426e5c] px-3 py-2 text-xs font-semibold text-[#254d40] hover:bg-[#edf4ef]">Manage content</Link></div></td>
                   </tr>
                 ))}
               </tbody>

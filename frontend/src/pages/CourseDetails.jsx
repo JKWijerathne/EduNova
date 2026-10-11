@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, Navigate, useParams } from 'react-router-dom'
 import { useAuth } from '../context/useAuth.js'
 import { getCourse } from '../services/courseService.js'
 import { enrollInCourse, getMyEnrollments } from '../services/enrollmentService.js'
@@ -39,6 +39,8 @@ export default function CourseDetails() {
     }
 
     let active = true
+    setIsEnrolled(false)
+    setCheckingEnrollment(true)
     getMyEnrollments()
       .then((enrollments) => {
         if (active) setIsEnrolled(enrollments.some((item) => String(item.courseId) === String(courseId)))
@@ -81,6 +83,9 @@ export default function CourseDetails() {
 
   return (
     <main className="min-h-screen bg-[#f3f4ed] px-6 py-8 text-[#172d2a] sm:px-10">
+      {!loading && !checkingEnrollment && isEnrolled && user?.role === 'STUDENT' && (
+        <Navigate to={`/courses/${courseId}/player`} replace />
+      )}
       <div className="mx-auto max-w-4xl">
         {loading && <p className="py-16 text-[#657570]">Loading course...</p>}
         {error && <p role="alert" className="mt-8 border-l-4 border-[#bd4c37] bg-white px-4 py-3">{error}</p>}
@@ -99,7 +104,7 @@ export default function CourseDetails() {
             {user?.role === 'STUDENT' && (
               <div className="mt-8 border-t border-[#d9ded5] pt-6">
                 {enrollmentFeedback && <p role="status" className="mb-4 border-l-4 border-[#426e5c] bg-[#edf4ef] px-4 py-3 text-sm">{enrollmentFeedback}{isEnrolled && <Link to="/my-enrollments" className="ml-2 font-semibold underline">View my enrollments</Link>}</p>}
-                <button onClick={handleEnroll} disabled={isEnrolled || checkingEnrollment || enrolling} className="bg-[#254d40] px-5 py-3 text-sm font-semibold text-white hover:bg-[#18392f] disabled:cursor-default disabled:opacity-60">{enrolling ? 'Enrolling...' : isEnrolled ? 'Already enrolled' : checkingEnrollment ? 'Checking enrollment...' : 'Enroll Now'}</button>
+                {!isEnrolled && <button onClick={handleEnroll} disabled={checkingEnrollment || enrolling} className="bg-[#254d40] px-5 py-3 text-sm font-semibold text-white hover:bg-[#18392f] disabled:cursor-default disabled:opacity-60">{enrolling ? 'Enrolling...' : checkingEnrollment ? 'Checking enrollment...' : 'Enroll Now'}</button>}
               </div>
             )}
           </article>

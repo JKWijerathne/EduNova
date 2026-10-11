@@ -4,12 +4,13 @@ import AppHeader from './AppHeader.jsx'
 
 export default function ProtectedRoute({ allowedRole }) {
   const { isAuthenticated, user } = useAuth()
+  const allowedRoles = Array.isArray(allowedRole) ? allowedRole : [allowedRole]
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />
   }
 
-  if (allowedRole && user.role !== allowedRole) {
+  if (allowedRole && !allowedRoles.includes(user.role)) {
     return <Navigate to={user.role === 'ADMIN' ? '/admin-dashboard' : '/student-dashboard'} replace />
   }
 

@@ -60,7 +60,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(
-                        email,
+                        new CoursePrincipal(Long.valueOf(claims.get("userId").toString()), email),
                         null,
                         List.of(new SimpleGrantedAuthority(authority))
                 );

@@ -5,6 +5,7 @@ import NotificationBell from './NotificationBell.jsx'
 export default function AppHeader() {
   const { user, logout } = useAuth()
   const isAdmin = user.role === 'ADMIN'
+  const isInstructor = user.role === 'INSTRUCTOR'
 
   return (
     <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#d9ded5] bg-white px-6 py-5 sm:px-10">
@@ -15,6 +16,11 @@ export default function AppHeader() {
             <Link to="/admin-dashboard" className="hover:text-[#bd4c37]">Dashboard</Link>
             <Link to="/admin/courses" className="hover:text-[#bd4c37]">Manage courses</Link>
             <Link to="/admin/enrollments" className="hover:text-[#bd4c37]">Enrollments</Link>
+            <Link to="/courses" className="hover:text-[#bd4c37]">Course catalog</Link>
+          </>
+        ) : isInstructor ? (
+          <>
+            <Link to="/admin/courses" className="hover:text-[#bd4c37]">Manage course content</Link>
             <Link to="/courses" className="hover:text-[#bd4c37]">Course catalog</Link>
           </>
         ) : (
