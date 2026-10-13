@@ -24,7 +24,7 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.GET, "/api/enrollments/my-courses").hasRole("STUDENT")
                     .requestMatchers(HttpMethod.GET, "/api/enrollments").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.POST, "/api/enrollments").hasRole("STUDENT")
-                    .requestMatchers(HttpMethod.DELETE, "/api/enrollments/**").hasRole("STUDENT")
+                    .requestMatchers(HttpMethod.DELETE, "/api/enrollments/**").hasAnyRole("STUDENT", "ADMIN")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form.disable())

@@ -61,6 +61,25 @@ public class LearningService {
     }
 
     @Transactional
+    public SectionResponse updateSection(Long sectionId, SectionRequest request) {
+        Section section = sectionRepository.findById(sectionId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Section not found"));
+        if (!section.getCourse().getId().equals(request.getCourseId())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Section does not belong to the requested course");
+        }
+        section.setTitle(request.getTitle().trim());
+        section.setSortOrder(request.getSortOrder());
+        return toSectionResponse(sectionRepository.save(section), List.of());
+    }
+
+    @Transactional
+    public void deleteSection(Long sectionId) {
+        Section section = sectionRepository.findById(sectionId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Section not found"));
+        sectionRepository.delete(section);
+    }
+
+    @Transactional
     public LessonResponse createLesson(LessonRequest request) {
         Section section = sectionRepository.findById(request.getSectionId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Section not found"));
@@ -75,6 +94,30 @@ public class LearningService {
                 .sortOrder(request.getSortOrder())
                 .build());
         return toLessonResponse(lesson);
+    }
+
+    @Transactional
+    public LessonResponse updateLesson(Long lessonId, LessonRequest request) {
+        Lesson lesson = lessonRepository.findById(lessonId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Lesson not found"));
+        if (!lesson.getSection().getId().equals(request.getSectionId())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Lesson cannot be moved to a different section while editing");
+        }
+        validateLessonContent(request.getContentType(), request.getContentUrl(), request.getBodyText());
+        lesson.setTitle(request.getTitle().trim());
+        lesson.setContentType(request.getContentType());
+        lesson.setContentUrl(blankToNull(request.getContentUrl()));
+        lesson.setBodyText(blankToNull(request.getBodyText()));
+        lesson.setDuration(request.getDuration());
+        lesson.setSortOrder(request.getSortOrder());
+        return toLessonResponse(lessonRepository.save(lesson));
+    }
+
+    @Transactional
+    public void deleteLesson(Long lessonId) {
+        Lesson lesson = lessonRepository.findById(lessonId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Lesson not found"));
+        lessonRepository.delete(lesson);
     }
 
     @Transactional

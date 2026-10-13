@@ -1,7 +1,16 @@
 package com.edunova.enrollmentservice;
 
+import com.edunova.enrollmentservice.entity.Enrollment;
+import com.edunova.enrollmentservice.repository.EnrollmentRepository;
+import com.edunova.enrollmentservice.service.EnrollmentService;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.time.LocalDateTime;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(properties = {
         "spring.datasource.url=jdbc:h2:mem:edunova_enrollment_test;DB_CLOSE_DELAY=-1;MODE=PostgreSQL",
@@ -15,8 +24,28 @@ import org.springframework.boot.test.context.SpringBootTest;
 })
 class EnrollmentServiceApplicationTests {
 
+    @Autowired
+    private EnrollmentRepository enrollmentRepository;
+
+    @Autowired
+    private EnrollmentService enrollmentService;
+
     @Test
     void contextLoads() {
     }
 
+    @Test
+    void adminCanRemoveAnEnrollment() {
+        Enrollment enrollment = enrollmentRepository.save(Enrollment.builder()
+                .studentId(123L)
+                .studentName("Student")
+                .studentEmail("student@example.com")
+                .courseId(456L)
+                .enrolledAt(LocalDateTime.now())
+                .build());
+
+        assertTrue(enrollmentRepository.existsById(enrollment.getId()));
+        enrollmentService.unenrollByAdmin(enrollment.getId());
+        assertFalse(enrollmentRepository.existsById(enrollment.getId()));
+    }
 }

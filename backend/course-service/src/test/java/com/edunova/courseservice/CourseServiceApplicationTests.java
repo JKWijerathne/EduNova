@@ -90,5 +90,20 @@ class CourseServiceApplicationTests {
         assertEquals(50, progress.getCompletionPercentage());
         assertEquals(List.of(firstLesson.getId()), progress.getCompletedLessonIds());
         assertEquals(0, learningService.getCourseProgress(43L, course.getId()).getCompletionPercentage());
+
+        sectionRequest.setTitle("Course foundations");
+        var updatedSection = learningService.updateSection(section.getId(), sectionRequest);
+        assertEquals("Course foundations", updatedSection.getTitle());
+
+        firstLessonRequest.setTitle("Course introduction");
+        var updatedLesson = learningService.updateLesson(firstLesson.getId(), firstLessonRequest);
+        assertEquals("Course introduction", updatedLesson.getTitle());
+
+        learningService.deleteLesson(secondLesson.getId());
+        assertEquals(1, learningService.getCurriculum(course.getId()).get(0).getLessons().size());
+
+        learningService.deleteSection(section.getId());
+        assertEquals(0, learningService.getCurriculum(course.getId()).size());
+        assertEquals(0, learningService.getCourseProgress(42L, course.getId()).getCompletedLessonIds().size());
     }
 }

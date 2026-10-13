@@ -36,9 +36,21 @@ export default function CourseForm({ course, onClose, onSave }) {
   async function submit(event) {
     event.preventDefault()
     setError('')
+    const title = form.title.trim()
+    const instructorName = form.instructorName.trim()
+    const duration = form.duration.trim()
+    if (!title || !instructorName || !duration || form.price === '') {
+      setError('Course title, instructor, duration, and price are required.')
+      return
+    }
+    const price = Number(form.price)
+    if (!Number.isFinite(price) || price < 0) {
+      setError('Enter a valid course price of zero or more.')
+      return
+    }
     setSaving(true)
     try {
-      await onSave({ ...form, price: form.price === '' ? null : Number(form.price) })
+      await onSave({ ...form, title, instructorName, duration, price })
       onClose()
     } catch (saveError) {
       setError(messageFromError(saveError))
@@ -58,20 +70,20 @@ export default function CourseForm({ course, onClose, onSave }) {
           <button type="button" onClick={onClose} aria-label="Close form" className="px-2 py-1 text-xl text-[#52645f] hover:text-[#bd4c37]">×</button>
         </div>
         <form onSubmit={submit} className="mt-6 grid gap-4 sm:grid-cols-2">
-          <label className="grid gap-1.5 text-sm font-semibold sm:col-span-2">Course title
-            <input name="title" required maxLength="150" value={form.title} onChange={updateField} className="border border-[#bdc9bf] bg-white px-3 py-2.5 font-normal outline-none focus:border-[#426e5c]" />
+          <label className="block text-sm font-semibold sm:col-span-2">Course title <span aria-hidden="true" className="text-[#a14935]">*</span>
+            <input name="title" required maxLength="150" value={form.title} onChange={updateField} className="mt-1.5 block w-full border border-[#bdc9bf] bg-white px-3 py-2.5 font-normal outline-none focus:border-[#426e5c]" />
           </label>
-          <label className="grid gap-1.5 text-sm font-semibold">Instructor
-            <input name="instructorName" maxLength="120" value={form.instructorName} onChange={updateField} className="border border-[#bdc9bf] bg-white px-3 py-2.5 font-normal outline-none focus:border-[#426e5c]" />
+          <label className="block text-sm font-semibold">Instructor <span aria-hidden="true" className="text-[#a14935]">*</span>
+            <input name="instructorName" required maxLength="120" value={form.instructorName} onChange={updateField} className="mt-1.5 block w-full border border-[#bdc9bf] bg-white px-3 py-2.5 font-normal outline-none focus:border-[#426e5c]" />
           </label>
-          <label className="grid gap-1.5 text-sm font-semibold">Duration
-            <input name="duration" maxLength="80" value={form.duration} onChange={updateField} placeholder="e.g. 6 weeks" className="border border-[#bdc9bf] bg-white px-3 py-2.5 font-normal outline-none focus:border-[#426e5c]" />
+          <label className="block text-sm font-semibold">Duration <span aria-hidden="true" className="text-[#a14935]">*</span>
+            <input name="duration" required maxLength="80" value={form.duration} onChange={updateField} placeholder="e.g. 6 weeks" className="mt-1.5 block w-full border border-[#bdc9bf] bg-white px-3 py-2.5 font-normal outline-none focus:border-[#426e5c]" />
           </label>
           <label className="grid gap-1.5 text-sm font-semibold">Category
             <input name="category" maxLength="80" value={form.category} onChange={updateField} placeholder="e.g. Design" className="border border-[#bdc9bf] bg-white px-3 py-2.5 font-normal outline-none focus:border-[#426e5c]" />
           </label>
-          <label className="grid gap-1.5 text-sm font-semibold">Price (USD)
-            <input name="price" type="number" min="0" step="0.01" value={form.price} onChange={updateField} placeholder="0.00" className="border border-[#bdc9bf] bg-white px-3 py-2.5 font-normal outline-none focus:border-[#426e5c]" />
+          <label className="block text-sm font-semibold">Price (USD) <span aria-hidden="true" className="text-[#a14935]">*</span>
+            <input name="price" type="number" required min="0" step="0.01" value={form.price} onChange={updateField} placeholder="0.00" className="mt-1.5 block w-full border border-[#bdc9bf] bg-white px-3 py-2.5 font-normal outline-none focus:border-[#426e5c]" />
           </label>
           <label className="grid gap-1.5 text-sm font-semibold sm:col-span-2">Description
             <textarea name="description" rows="5" value={form.description} onChange={updateField} className="resize-y border border-[#bdc9bf] bg-white px-3 py-2.5 font-normal outline-none focus:border-[#426e5c]" />

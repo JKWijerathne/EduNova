@@ -77,6 +77,15 @@ public class EnrollmentService {
         enrollmentRepository.delete(enrollment);
     }
 
+    public void unenrollByAdmin(Long enrollmentId) {
+        Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Enrollment not found"
+                ));
+        enrollmentRepository.delete(enrollment);
+    }
+
     private EnrollmentResponse mapToResponse(Enrollment enrollment) {
         return EnrollmentResponse.builder()
                 .id(enrollment.getId())

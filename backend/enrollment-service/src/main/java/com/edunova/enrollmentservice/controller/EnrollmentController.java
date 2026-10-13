@@ -49,7 +49,13 @@ public class EnrollmentController {
             Authentication authentication
     ) {
         EnrollmentPrincipal student = (EnrollmentPrincipal) authentication.getPrincipal();
-        enrollmentService.unenroll(id, student.userId());
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
+        if (isAdmin) {
+            enrollmentService.unenrollByAdmin(id);
+        } else {
+            enrollmentService.unenroll(id, student.userId());
+        }
         return ResponseEntity.noContent().build();
     }
 }

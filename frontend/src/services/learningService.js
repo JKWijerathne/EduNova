@@ -10,9 +10,27 @@ export async function createSection(section) {
   return data
 }
 
+export async function updateSection(sectionId, section) {
+  const { data } = await apiClient.put(`/courses/sections/${sectionId}`, section)
+  return data
+}
+
+export async function deleteSection(sectionId) {
+  await apiClient.delete(`/courses/sections/${sectionId}`)
+}
+
 export async function createLesson(lesson) {
   const { data } = await apiClient.post('/courses/lessons', lesson)
   return data
+}
+
+export async function updateLesson(lessonId, lesson) {
+  const { data } = await apiClient.put(`/courses/lessons/${lessonId}`, lesson)
+  return data
+}
+
+export async function deleteLesson(lessonId) {
+  await apiClient.delete(`/courses/lessons/${lessonId}`)
 }
 
 export async function reorderSections(courseId, sectionIds) {

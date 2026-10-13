@@ -28,9 +28,37 @@ public class LearningController {
         return ResponseEntity.status(HttpStatus.CREATED).body(learningService.createSection(request));
     }
 
+    @PutMapping("/api/courses/sections/{sectionId}")
+    public ResponseEntity<SectionResponse> updateSection(
+            @PathVariable Long sectionId,
+            @Valid @RequestBody SectionRequest request
+    ) {
+        return ResponseEntity.ok(learningService.updateSection(sectionId, request));
+    }
+
+    @DeleteMapping("/api/courses/sections/{sectionId}")
+    public ResponseEntity<Void> deleteSection(@PathVariable Long sectionId) {
+        learningService.deleteSection(sectionId);
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/api/courses/lessons")
     public ResponseEntity<LessonResponse> createLesson(@Valid @RequestBody LessonRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(learningService.createLesson(request));
+    }
+
+    @PutMapping("/api/courses/lessons/{lessonId}")
+    public ResponseEntity<LessonResponse> updateLesson(
+            @PathVariable Long lessonId,
+            @Valid @RequestBody LessonRequest request
+    ) {
+        return ResponseEntity.ok(learningService.updateLesson(lessonId, request));
+    }
+
+    @DeleteMapping("/api/courses/lessons/{lessonId}")
+    public ResponseEntity<Void> deleteLesson(@PathVariable Long lessonId) {
+        learningService.deleteLesson(lessonId);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/api/courses/sections/order")

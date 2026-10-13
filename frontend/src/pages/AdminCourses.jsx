@@ -13,7 +13,6 @@ export default function AdminCourses() {
   const { user } = useAuth()
   const isAdmin = user.role === 'ADMIN'
   const [courses, setCourses] = useState([])
-  const [contentCourseId, setContentCourseId] = useState('')
   const [selectedCourse, setSelectedCourse] = useState(null)
   const [courseToDelete, setCourseToDelete] = useState(null)
   const [deletingCourseId, setDeletingCourseId] = useState(null)
@@ -26,11 +25,7 @@ export default function AdminCourses() {
     setError('')
     try {
       const results = await getCourses()
-      const loadedCourses = Array.isArray(results) ? results : []
-      setCourses(loadedCourses)
-      setContentCourseId((current) => loadedCourses.some((course) => String(course.id) === current)
-        ? current
-        : String(loadedCourses[0]?.id || ''))
+      setCourses(Array.isArray(results) ? results : [])
     } catch {
       setError('Courses could not be loaded. Please try again.')
     } finally {
@@ -92,18 +87,7 @@ export default function AdminCourses() {
             <h1 className="mt-3 font-serif text-4xl">Course management</h1>
             <p className="mt-3 text-[#657570]">Create, update, and remove catalog courses.</p>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
-            {courses.length > 0 && (
-              <div className="flex flex-wrap items-center gap-2 border border-[#bdc9bf] bg-white p-2">
-                <label htmlFor="content-course" className="pl-1 text-xs font-semibold text-[#52645f]">Course content</label>
-                <select id="content-course" value={contentCourseId} onChange={(event) => setContentCourseId(event.target.value)} className="max-w-56 border border-[#bdc9bf] px-3 py-2 text-sm">
-                  {courses.map((course) => <option key={course.id} value={String(course.id)}>{course.title}</option>)}
-                </select>
-                <Link to={`/admin/courses/${contentCourseId}/content`} className="bg-[#254d40] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#18392f]">Manage content</Link>
-              </div>
-            )}
-            {isAdmin && <button onClick={openCreate} className="bg-[#254d40] px-5 py-3 text-sm font-semibold text-white hover:bg-[#18392f]">+ Add course</button>}
-          </div>
+          {isAdmin && <button onClick={openCreate} className="bg-[#254d40] px-5 py-3 text-sm font-semibold text-white hover:bg-[#18392f]">+ Add course</button>}
         </div>
 
         {error && <p role="alert" className="mt-6 border-l-4 border-[#bd4c37] bg-white px-4 py-3 text-sm">{error}</p>}
