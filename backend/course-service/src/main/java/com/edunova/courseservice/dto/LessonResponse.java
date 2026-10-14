@@ -14,4 +14,5 @@ public class LessonResponse {
     private String bodyText;
     private Integer duration;
     private Integer sortOrder;
+    private java.util.List<QuizSummaryResponse> quizzes;
 }

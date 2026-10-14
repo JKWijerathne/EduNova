@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import QuizBuilder from '../components/QuizBuilder.jsx'
 import { getCourse } from '../services/courseService.js'
 import {
   createLesson,
@@ -66,6 +67,7 @@ export default function AdminCourseContent() {
   const [lessonEditor, setLessonEditor] = useState(null)
   const [lessonForm, setLessonForm] = useState(emptyLessonForm)
   const [itemToDelete, setItemToDelete] = useState(null)
+  const [quizParent, setQuizParent] = useState(null)
   const [draggedSectionId, setDraggedSectionId] = useState(null)
   const [draggedLesson, setDraggedLesson] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -287,6 +289,11 @@ export default function AdminCourseContent() {
                         <div>
                           <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#68817b]">Section {sectionIndex + 1}</p>
                           <h2 className="mt-1 font-serif text-xl">{section.title}</h2>
+                          {section.quizzes?.length > 0 && (
+                            <ul className="mt-2 flex flex-wrap gap-2">
+                              {section.quizzes.map((quiz) => <li key={quiz.id} className="border border-[#b8cdbf] bg-white px-2 py-1 text-xs text-[#426e5c]">{quiz.title} · {quiz.questionCount} questions</li>)}
+                            </ul>
+                          )}
                         </div>
                       </div>
                     )}
@@ -294,6 +301,7 @@ export default function AdminCourseContent() {
                       <div className="flex gap-2">
                         <button type="button" className={buttonClass} disabled={saving} onClick={() => setSectionEdit({ id: section.id, title: section.title })}>Edit</button>
                         <button type="button" className={`${buttonClass} text-[#a14935]`} disabled={saving} onClick={() => setItemToDelete({ type: 'section', item: section })}>Delete</button>
+                        <button type="button" className={buttonClass} disabled={saving} onClick={() => setQuizParent({ sectionId: section.id })}>Add quiz</button>
                         <button type="button" className="bg-[#254d40] px-3 py-2 text-xs font-semibold text-white hover:bg-[#18392f]" disabled={saving} onClick={() => {
                           setLessonEditor(lessonEditor?.sectionId === section.id && !lessonEditor.lessonId ? null : { sectionId: section.id, lessonId: null })
                           setLessonForm(emptyLessonForm)
@@ -336,9 +344,15 @@ export default function AdminCourseContent() {
                               <div>
                                 <p className="font-semibold">{lesson.title}</p>
                                 <p className="mt-1 text-xs uppercase tracking-wide text-[#68817b]">{lesson.contentType}{lesson.duration ? ` · ${lesson.duration} min` : ''}</p>
+                                {lesson.quizzes?.length > 0 && (
+                                  <ul className="mt-2 flex flex-wrap gap-2">
+                                    {lesson.quizzes.map((quiz) => <li key={quiz.id} className="border border-[#b8cdbf] bg-white px-2 py-1 text-xs text-[#426e5c]">{quiz.title} · {quiz.questionCount} questions</li>)}
+                                  </ul>
+                                )}
                               </div>
                             </div>
                             <div className="flex gap-2">
+                              <button type="button" className={buttonClass} disabled={saving} onClick={() => setQuizParent({ lessonId: lesson.id })}>Add quiz</button>
                               <button type="button" className={buttonClass} disabled={saving} onClick={() => startEditLesson(section, lesson)}>Edit</button>
                               <button type="button" className={`${buttonClass} text-[#a14935]`} disabled={saving} onClick={() => setItemToDelete({ type: 'lesson', item: lesson })}>Delete</button>
                             </div>
@@ -381,6 +395,17 @@ export default function AdminCourseContent() {
             </div>
           </section>
         </div>
+      )}
+      {quizParent && (
+        <QuizBuilder
+          parent={quizParent}
+          onClose={() => setQuizParent(null)}
+          onCreated={async () => {
+            setQuizParent(null)
+            setFeedback('Quiz created.')
+            await loadCourse()
+          }}
+        />
       )}
     </main>
   )

@@ -12,4 +12,5 @@ public class SectionResponse {
     private String title;
     private Integer sortOrder;
     private List<LessonResponse> lessons;
+    private List<QuizSummaryResponse> quizzes;
 }

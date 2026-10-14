@@ -12,4 +12,6 @@ public class CourseProgressResponse {
     private int completionPercentage;
     private long totalLessons;
     private List<Long> completedLessonIds;
+    private long totalQuizzes;
+    private List<Long> passedQuizIds;
 }

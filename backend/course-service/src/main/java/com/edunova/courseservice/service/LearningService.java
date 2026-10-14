@@ -4,6 +4,8 @@ import com.edunova.courseservice.dto.*;
 import com.edunova.courseservice.entity.*;
 import com.edunova.courseservice.repository.CourseRepository;
 import com.edunova.courseservice.repository.LessonRepository;
+import com.edunova.courseservice.repository.QuizRepository;
+import com.edunova.courseservice.repository.StudentQuizAttemptRepository;
 import com.edunova.courseservice.repository.SectionRepository;
 import com.edunova.courseservice.repository.StudentProgressRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,8 @@ public class LearningService {
     private final SectionRepository sectionRepository;
     private final LessonRepository lessonRepository;
     private final StudentProgressRepository progressRepository;
+    private final QuizRepository quizRepository;
+    private final StudentQuizAttemptRepository quizAttemptRepository;
 
     @Transactional(readOnly = true)
     public List<SectionResponse> getCurriculum(Long courseId) {
@@ -35,6 +39,13 @@ public class LearningService {
         List<Lesson> lessons = sectionIds.isEmpty()
                 ? List.of()
                 : lessonRepository.findBySectionIdInOrderBySortOrderAscIdAsc(sectionIds);
+        List<Long> lessonIds = lessons.stream().map(Lesson::getId).toList();
+        List<Quiz> quizzesForLessons = lessonIds.isEmpty()
+                ? List.of()
+                : quizRepository.findByLessonIdInOrderByIdAsc(lessonIds);
+        List<Quiz> allSectionQuizzes = sectionIds.isEmpty()
+                ? List.of()
+                : quizRepository.findBySectionIdInOrderByIdAsc(sectionIds);
 
         return sections.stream()
                 .map(section -> SectionResponse.builder()
@@ -43,7 +54,13 @@ public class LearningService {
                         .sortOrder(section.getSortOrder())
                         .lessons(lessons.stream()
                                 .filter(lesson -> lesson.getSection().getId().equals(section.getId()))
-                                .map(this::toLessonResponse)
+                                .map(lesson -> toLessonResponse(lesson, quizzesForLessons.stream()
+                                        .filter(quiz -> quiz.getLesson().getId().equals(lesson.getId()))
+                                        .toList()))
+                                .toList())
+                        .quizzes(allSectionQuizzes.stream()
+                                .filter(quiz -> quiz.getSection().getId().equals(section.getId()))
+                                .map(this::toQuizSummary)
                                 .toList())
                         .build())
                 .toList();
@@ -175,14 +192,19 @@ public class LearningService {
                 .stream()
                 .map(progress -> progress.getLesson().getId())
                 .toList();
-        int completionPercentage = totalLessons == 0
+        long totalQuizzes = quizRepository.countByCourseId(courseId);
+        List<Long> passedQuizIds = quizAttemptRepository.findPassedQuizIdsByStudentAndCourse(studentId, courseId);
+        long totalActivities = totalLessons + totalQuizzes;
+        int completionPercentage = totalActivities == 0
                 ? 0
-                : (int) (completedLessonIds.size() * 100 / totalLessons);
+                : (int) ((completedLessonIds.size() + passedQuizIds.size()) * 100 / totalActivities);
         return CourseProgressResponse.builder()
                 .courseId(courseId)
                 .completionPercentage(completionPercentage)
                 .totalLessons(totalLessons)
                 .completedLessonIds(completedLessonIds)
+                .totalQuizzes(totalQuizzes)
+                .passedQuizIds(passedQuizIds)
                 .build();
     }
 
@@ -225,10 +247,15 @@ public class LearningService {
                 .title(section.getTitle())
                 .sortOrder(section.getSortOrder())
                 .lessons(lessons)
+                .quizzes(List.of())
                 .build();
     }
 
     private LessonResponse toLessonResponse(Lesson lesson) {
+        return toLessonResponse(lesson, List.of());
+    }
+
+    private LessonResponse toLessonResponse(Lesson lesson, List<Quiz> quizzes) {
         return LessonResponse.builder()
                 .id(lesson.getId())
                 .title(lesson.getTitle())
@@ -237,6 +264,17 @@ public class LearningService {
                 .bodyText(lesson.getBodyText())
                 .duration(lesson.getDuration())
                 .sortOrder(lesson.getSortOrder())
+                .quizzes(quizzes.stream().map(this::toQuizSummary).toList())
+                .build();
+    }
+
+    private QuizSummaryResponse toQuizSummary(Quiz quiz) {
+        return QuizSummaryResponse.builder()
+                .id(quiz.getId())
+                .title(quiz.getTitle())
+                .passingMarkPercentage(quiz.getPassingMarkPercentage())
+                .timeLimitMinutes(quiz.getTimeLimitMinutes())
+                .questionCount(quiz.getQuestionCount())
                 .build();
     }
 
