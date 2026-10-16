@@ -88,7 +88,7 @@ public class QuizService {
                         .id(question.getId())
                         .questionText(question.getQuestionText())
                         .questionType(question.getQuestionType())
-                        .options(question.getOptions())
+                        .options(question.getOptions() != null ? new java.util.ArrayList<>(question.getOptions()) : java.util.List.of())
                         .sortOrder(question.getSortOrder())
                         .build())
                 .toList();

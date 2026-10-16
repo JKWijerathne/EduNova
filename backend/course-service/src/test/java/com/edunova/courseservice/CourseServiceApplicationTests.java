@@ -47,6 +47,32 @@ class CourseServiceApplicationTests {
     @Autowired
     private QuizService quizService;
 
+
+    @Test
+    void testGetQuizOutsideTransaction() {
+        var course = courseRepository.save(com.edunova.courseservice.entity.Course.builder()
+                .title("Assessment course")
+                .price(java.math.BigDecimal.ZERO)
+                .build());
+        var sectionRequest = new com.edunova.courseservice.dto.SectionRequest();
+        sectionRequest.setCourseId(course.getId());
+        sectionRequest.setTitle("Knowledge check");
+        sectionRequest.setSortOrder(0);
+        var section = learningService.createSection(sectionRequest);
+
+        var firstQuestion = question("Which planet is known as the Red Planet?", "Mars", "Venus", 0);
+        var createRequest = new com.edunova.courseservice.dto.CreateQuizRequest();
+        createRequest.setSectionId(section.getId());
+        createRequest.setTitle("Astronomy quiz");
+        createRequest.setPassingMarkPercentage(50);
+        createRequest.setQuestions(List.of(firstQuestion));
+        var quiz = quizService.createQuiz(createRequest);
+
+        var studentQuiz = quizService.getQuiz(quiz.getId());
+        assertEquals("Astronomy quiz", studentQuiz.getTitle());
+        assertEquals(List.of("Mars", "Venus"), studentQuiz.getQuestions().get(0).getOptions());
+    }
+
     @Test
     void contextLoads() {
     }

@@ -35,7 +35,7 @@ public class QuizQuestion {
     @Column(nullable = false)
     private QuizQuestionType questionType;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "quiz_question_options", joinColumns = @JoinColumn(name = "question_id"))
     @OrderColumn(name = "option_order")
     @Column(name = "option_text", nullable = false, columnDefinition = "TEXT")
