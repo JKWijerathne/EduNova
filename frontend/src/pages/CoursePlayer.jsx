@@ -1,8 +1,9 @@
-import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { getCourse } from '../services/courseService.js'
 import { getMyEnrollments } from '../services/enrollmentService.js'
 import { completeLesson, getCourseCurriculum, getCourseProgress } from '../services/learningService.js'
+import { recordStudyHeartbeat } from '../services/dashboardService.js'
 import QuizPlayer from '../components/QuizPlayer.jsx'
 
 function flattenActivities(sections) {
@@ -47,12 +48,14 @@ export default function CoursePlayer() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [notEnrolled, setNotEnrolled] = useState(false)
+  const activeActivityRef = useRef(null)
 
   const activities = useMemo(() => flattenActivities(sections), [sections])
   const activeActivity = activities.find((activity) => activity.activityKey === activeActivityKey)
   const activeIndex = activities.findIndex((activity) => activity.activityKey === activeActivityKey)
   const nextActivity = activeIndex >= 0 ? activities[activeIndex + 1] : null
   const isCompleted = activeActivity?.activityType === 'lesson' && completedIds.includes(activeActivity.id)
+  activeActivityRef.current = activeActivity
 
   const loadLearningData = useCallback(async () => {
     setError('')
@@ -81,6 +84,23 @@ export default function CoursePlayer() {
   }, [courseId])
 
   useEffect(() => { loadLearningData() }, [loadLearningData])
+
+  useEffect(() => {
+    if (activeActivity?.activityType !== 'lesson') return
+    recordStudyHeartbeat().catch(() => {
+      setError('Study time could not be recorded. Your lesson progress is still available.')
+    })
+  }, [activeActivityKey, activeActivity?.activityType])
+
+  useEffect(() => {
+    const heartbeat = window.setInterval(() => {
+      if (document.visibilityState !== 'visible' || activeActivityRef.current?.activityType !== 'lesson') return
+      recordStudyHeartbeat().catch(() => {
+        setError('Study time could not be recorded. Your lesson progress is still available.')
+      })
+    }, 60_000)
+    return () => window.clearInterval(heartbeat)
+  }, [courseId])
 
   useEffect(() => {
     if (activities.length === 0) return

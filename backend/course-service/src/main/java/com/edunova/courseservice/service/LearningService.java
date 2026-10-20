@@ -30,6 +30,7 @@ public class LearningService {
     private final StudentProgressRepository progressRepository;
     private final QuizRepository quizRepository;
     private final StudentQuizAttemptRepository quizAttemptRepository;
+    private final StudyActivityService studyActivityService;
 
     @Transactional(readOnly = true)
     public List<SectionResponse> getCurriculum(Long courseId) {
@@ -180,6 +181,7 @@ public class LearningService {
             progress.setCompleted(true);
             progress.setCompletedAt(LocalDateTime.now());
             progressRepository.save(progress);
+            studyActivityService.recordLessonCompleted(studentId);
         }
     }
 

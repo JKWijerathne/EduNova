@@ -21,6 +21,10 @@ spring:
               uri: lb://course-service
               predicates:
                 - Path=/api/progress/**
+            - id: course-dashboard-service
+              uri: lb://course-service
+              predicates:
+                - Path=/api/dashboard/**
             - id: quiz-service
               uri: lb://course-service
               predicates:
