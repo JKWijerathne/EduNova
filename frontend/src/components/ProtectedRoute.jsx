@@ -1,6 +1,5 @@
 import { Navigate, Outlet } from 'react-router-dom'
 import { useAuth } from '../context/useAuth.js'
-import AppHeader from './AppHeader.jsx'
 
 export default function ProtectedRoute({ allowedRole }) {
   const { isAuthenticated, user } = useAuth()
@@ -11,13 +10,13 @@ export default function ProtectedRoute({ allowedRole }) {
   }
 
   if (allowedRole && !allowedRoles.includes(user.role)) {
-    return <Navigate to={user.role === 'ADMIN' ? '/admin-dashboard' : '/student-dashboard'} replace />
+    const homePath = user.role === 'ADMIN'
+      ? '/admin-dashboard'
+      : user.role === 'INSTRUCTOR'
+        ? '/admin/courses'
+        : '/student-dashboard'
+    return <Navigate to={homePath} replace />
   }
 
-  return (
-    <>
-      <AppHeader />
-      <Outlet />
-    </>
-  )
+  return <Outlet />
 }
