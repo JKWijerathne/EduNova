@@ -1,8 +1,11 @@
 package com.edunova.authservice.service;
 
 import com.edunova.authservice.dto.AuthResponse;
+import com.edunova.authservice.dto.ChangePasswordRequest;
 import com.edunova.authservice.dto.LoginRequest;
+import com.edunova.authservice.dto.ProfileResponse;
 import com.edunova.authservice.dto.RegisterRequest;
+import com.edunova.authservice.dto.UpdateProfileRequest;
 import com.edunova.authservice.entity.Role;
 import com.edunova.authservice.entity.User;
 import com.edunova.authservice.repository.UserRepository;
@@ -13,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.security.SecureRandom;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Locale;
 import java.util.Optional;
@@ -114,6 +118,53 @@ public class AuthService {
 
         String token = jwtService.generateToken(user);
         return createAuthResponse(user, "Google sign-in successful", token);
+    }
+
+    public ProfileResponse getProfile(Long userId) {
+        return toProfileResponse(findUser(userId));
+    }
+
+    public ProfileResponse updateProfile(Long userId, UpdateProfileRequest request) {
+        User user = findUser(userId);
+        user.setName(request.name().trim());
+        user.setPhoneNumber(request.phoneNumber() == null || request.phoneNumber().isBlank()
+                ? null
+                : request.phoneNumber().trim());
+        return toProfileResponse(userRepository.save(user));
+    }
+
+    public void changePassword(Long userId, ChangePasswordRequest request) {
+        User user = findUser(userId);
+        if (user.getGoogleSubject() != null) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Password changes for Google accounts must be made through Google."
+            );
+        }
+        if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Current password is incorrect.");
+        }
+        if (request.newPassword().getBytes(StandardCharsets.UTF_8).length > 72) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "New password must be no more than 72 UTF-8 bytes.");
+        }
+        user.setPassword(passwordEncoder.encode(request.newPassword()));
+        userRepository.save(user);
+    }
+
+    private User findUser(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found."));
+    }
+
+    private ProfileResponse toProfileResponse(User user) {
+        return new ProfileResponse(
+                user.getId(),
+                user.getName(),
+                user.getPhoneNumber(),
+                user.getEmail(),
+                user.getRole().name(),
+                user.getGoogleSubject() != null
+        );
     }
 
     private AuthResponse createAuthResponse(User user, String message, String token) {

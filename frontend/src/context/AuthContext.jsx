@@ -50,6 +50,13 @@ export function AuthProvider({ children }) {
     return saveSession(data)
   }
 
+  function updateUserProfile(profile) {
+    if (!user) return
+    const nextUser = { ...user, name: profile.name, email: profile.email, phoneNumber: profile.phoneNumber }
+    localStorage.setItem('user', JSON.stringify(nextUser))
+    setUser(nextUser)
+  }
+
   function logout() {
     localStorage.removeItem('token')
     localStorage.removeItem('user')
@@ -58,7 +65,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ token, user, isAuthenticated: Boolean(token && user), login, googleLogin, register, logout }}>
+    <AuthContext.Provider value={{ token, user, isAuthenticated: Boolean(token && user), login, googleLogin, register, updateUserProfile, logout }}>
       {children}
     </AuthContext.Provider>
   )
