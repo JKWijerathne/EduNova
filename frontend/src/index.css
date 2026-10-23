@@ -1,1 +1,98 @@
 @import "tailwindcss";
+@config "../tailwind.config.js";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  html {
+    min-height: 100%;
+  }
+
+  body {
+    min-height: 100vh;
+    background-color: #f3f4ed;
+    color: #172d2a;
+  }
+
+  html.dark body {
+    background-color: #111827;
+    color: #f3f4f6;
+  }
+}
+
+@layer utilities {
+  html.dark :where(
+    [class~="bg-white"],
+    [class~="bg-[#f3f4ed]"],
+    [class~="bg-[#f6f8f3]"],
+    [class~="bg-[#fbfcf8]"],
+    [class~="bg-[#eaf1eb]"],
+    [class~="bg-[#edf4ef]"],
+    [class~="bg-[#e8ede6]"],
+    [class~="bg-[#e5ebe5]"],
+    [class~="bg-[#dce8d8]"],
+    [class~="hover:bg-white"],
+    [class~="hover:bg-[#f6f8f3]"],
+    [class~="hover:bg-[#edf4ef]"]
+  ) {
+    background-color: #1f2937;
+  }
+
+  html.dark :where(
+    [class~="text-[#172d2a]"],
+    [class~="text-[#17372f]"],
+    [class~="text-[#254d40]"],
+    [class~="text-[#40534d]"],
+    [class~="text-[#426e5c]"],
+    [class~="text-[#52645f]"],
+    [class~="text-[#52665f]"],
+    [class~="text-[#657570]"],
+    [class~="text-[#68817b]"],
+    [class~="text-[#82908a]"],
+    [class~="text-[#0d4037]"],
+    [class~="text-[#176457]"],
+    [class~="text-[#7f2f22]"],
+    [class~="text-[#843124]"],
+    [class~="text-[#853b2a]"],
+    [class~="text-[#a14935]"],
+    [class~="text-[#a43f30]"]
+  ) {
+    color: #d1d5db;
+  }
+
+  html.dark :where(
+    [class~="text-[#bd4c37]"],
+    [class~="text-[#e08b70]"]
+  ) {
+    color: #fca5a5;
+  }
+
+  html.dark :where(
+    [class~="border-[#d9ded5]"],
+    [class~="border-[#bdc9bf]"],
+    [class~="border-[#cbd3ca]"],
+    [class~="border-[#e2e7e1]"],
+    [class~="border-[#b8cdbf]"],
+    [class~="divide-[#d9ded5]"],
+    [class~="divide-[#edf0e9]"]
+  ) {
+    border-color: #4b5563;
+  }
+
+  html.dark :where(input, select, textarea) {
+    border-color: #4b5563;
+    background-color: #1f2937;
+    color: #f3f4f6;
+  }
+
+  html.dark :where(input, select, textarea)::placeholder {
+    color: #9ca3af;
+  }
+
+  html.dark :where(table) {
+    color: #e5e7eb;
+  }
+
+  html.dark :where(th, td) {
+    border-color: #4b5563;
+  }
+}

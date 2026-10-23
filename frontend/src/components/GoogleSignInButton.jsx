@@ -3,7 +3,14 @@ import { useEffect, useRef, useState } from 'react'
 const GOOGLE_SCRIPT_SELECTOR = 'script[data-edunova-google-identity]'
 
 function getErrorMessage(error) {
-  return error.response?.data?.message || error.message || 'Google sign-in could not be completed. Please try again.'
+  const responseData = error.response?.data
+  const serverMessage = [
+    responseData?.message,
+    responseData?.detail,
+    responseData?.title,
+  ].find((message) => typeof message === 'string' && message.trim())
+
+  return serverMessage || error.message || 'Google sign-in could not be completed. Please try again.'
 }
 
 export default function GoogleSignInButton({ onCredential, disabled = false }) {

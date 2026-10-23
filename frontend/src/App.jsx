@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext.jsx'
 import { useAuth } from './context/useAuth.js'
 import { NotificationProvider } from './context/NotificationContext.jsx'
+import { ThemeProvider } from './context/ThemeContext.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import DashboardLayout from './components/DashboardLayout.jsx'
 import AdminDashboard from './pages/AdminDashboard.jsx'
@@ -18,6 +19,7 @@ import Notifications from './pages/Notifications.jsx'
 import WorkspacePlaceholder from './pages/WorkspacePlaceholder.jsx'
 import Register from './pages/Register.jsx'
 import Profile from './pages/Profile.jsx'
+import Settings from './pages/Settings.jsx'
 import StudentDashboard from './pages/StudentDashboard.jsx'
 
 function HomeRedirect() {
@@ -42,7 +44,7 @@ function AppRoutes() {
           <Route path="/courses/:courseId" element={<CourseDetails />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/settings" element={<WorkspacePlaceholder title="Settings" description="Account preferences are not available yet." />} />
+          <Route path="/settings" element={<Settings />} />
           <Route element={<ProtectedRoute allowedRole="STUDENT" />}>
             <Route path="/student-dashboard" element={<StudentDashboard />} />
             <Route path="/my-enrollments" element={<MyEnrollments />} />
@@ -69,9 +71,11 @@ function AppRoutes() {
 export default function App() {
   return (
     <AuthProvider>
-      <NotificationProvider>
-        <AppRoutes />
-      </NotificationProvider>
+      <ThemeProvider>
+        <NotificationProvider>
+          <AppRoutes />
+        </NotificationProvider>
+      </ThemeProvider>
     </AuthProvider>
   )
 }
